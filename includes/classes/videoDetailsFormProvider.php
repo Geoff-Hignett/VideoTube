@@ -2,17 +2,28 @@
 
 class VideoDetailsFormProvider
 {
+
+    private $con;
+
+    public function __construct($con)
+    {
+        $this->con = $con;
+    }
     public function createUploadForm()
     {
         $fileInput = $this->createFileInput();
         $titleInput = $this->createTitleInput();
         $descriptionInput = $this->createDescriptionInput();
         $privacyInput = $this->createPrivacyInput();
+        $categoriesInput = $this->createCategoriesInput();
+        $uploadButton = $this->createUploadButton();
         return "<form action='processing.php' method='post'>
                     $fileInput
                     $titleInput
                     $descriptionInput
                     $privacyInput
+                    $categoriesInput
+                    $uploadButton
                 </form>";
     }
 
@@ -46,5 +57,30 @@ class VideoDetailsFormProvider
                         <option value='1'>Private</option>
                     </select>
                 </div>";
+    }
+
+    private function createCategoriesInput()
+    {
+        $query = $this->con->prepare("SELECT * FROM categories");
+        $query->execute();
+
+        $html = "<div class='form-group'>
+                    <select class='form-control' name='categoriesInput'>";
+
+        while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
+            $name = $row["name"];
+            $id = $row["id"];
+            $html .= "<option value='$id'>$name</option>";
+        }
+
+        $html .= "</select>
+                </div>";
+
+        return $html;
+    }
+
+    private function createUploadButton()
+    {
+        return "<button type='submit' name='uploadButton class='btn btn-primary'>Upload</button>";
     }
 }
